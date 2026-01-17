@@ -1,9 +1,24 @@
+version: "3.9"
+
 services:
+  # Your web app container (internal only)
   final-project:
     build: .
     container_name: final-project
     expose:
-      - "80"
+      - "80"   # internal container port only
     environment:
       - USER_NAME=${USER_NAME:-DevOps Engineer}
+    restart: unless-stopped
+
+  # Nginx reverse proxy container
+  nginx:
+    image: nginx:alpine
+    container_name: reverse-proxy
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "80:80"   # host port exposed to the internet
+    depends_on:
+      - final-project
     restart: unless-stopped
